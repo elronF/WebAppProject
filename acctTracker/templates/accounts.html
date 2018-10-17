@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+	<div class = 'pane'>
+		<h1>Accounts</h1>
+
+		{% for account in accounts %}
+
+		<p>{{account.owner + " - " + account.accountType}}</p>
+
+		{% endfor %}
+	</div>
+</body>
+
+</html>
