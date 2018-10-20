@@ -1,4 +1,4 @@
 h1, h2, h3, h4 {color: #000000;}
 p {color:#000000;}
 
-.pane { position:absolute; left:10%; border: 2px solid; padding: 15px; margin: 2px; border-color: #999999; }
+.header { border: 2px solid; margin: 2px; border-color: #999999; }
