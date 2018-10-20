@@ -37,6 +37,7 @@ class Stock(Base):
     account_id = Column(Integer, ForeignKey('account.id'))
     account = relationship(Account)
 
+# For later functionality
 # class Transaction(Base):
 # 	id = Column(Integer, primary_key = True)
 # 	costBasis = Column(Integer, nullable = False)
