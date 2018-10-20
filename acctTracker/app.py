@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from db_setup import Base, Account, Stock
+from db_setup import Base, Owner, Account, Stock
 
 app = Flask(__name__)
 
@@ -14,10 +14,26 @@ session = DBSession()
 
 # Show all accounts
 @app.route('/')
-@app.route('/accounts')
+@app.route('/accounts/')
 def showAccounts():
-    accounts = session.query(Account).all()
+    accounts = session.query(Account).order_by(asc(Account.accountType))
     return render_template('accounts.html', accounts=accounts)
+
+
+# Show the contents of one account
+@app.route('/accounts/<int:account_id>/')
+def showOneAccount(account_id):
+    account = session.query(Account).filter_by(id=account_id).one()
+    stocks = session.query(Stock).filter_by(account_id=account_id).all()
+    return("Hey there fella, something worked!")
+
+
+# Show the details of one stock
+@app.route('/accounts/<int:account_id>/<string:stock_ticker>/')
+def showStockDetails(account_id, stock_ticker):
+    stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    account = session.query(Account).filter_by(id=account_id).one()
+    return("Hey there fella, something worked!")
 
 
 if __name__ == '__main__':
