@@ -7,9 +7,16 @@
 	<body>
 		<div class="container">
 			<div class="row banner-accounts">
-				<div class="col-md-12">
-					<div class="header">
-					<h1>Account Summary</h1>
+				<div class="col-md-6 text-left">
+					<div class="header-left">
+						<a href="{{url_for('showAccounts')}}">
+						<h1>Account Summary</h1>
+						</a>
+					</div>
+				</div>
+				<div class="col-md-6 login-header">
+					<div class="header-right">
+						<h1>Login Placeholder</h1>
 					</div>
 				</div>
 			</div>
@@ -26,7 +33,7 @@
 						</ul>
 					</div>
 				</div>
-				<div class="col-md-8"> <!--COLUMN FOR CONTENT-->
+				<div class="col-md-8"> <!--COLUMN FOR EXTENDED CONTENT-->
 					<div class="content-area" align="center">
 					{% block content %}
 					{% endblock %}
