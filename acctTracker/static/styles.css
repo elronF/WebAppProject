@@ -1,4 +1,37 @@
 h1, h2, h3, h4 {color: #000000;}
 p {color:#000000;}
 
-.header { border: 2px solid; margin: 2px; border-color: #999999; }
+.content-area {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.account-group {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.banner-accounts {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.account-group li {
+	display: table-cell;
+    vertical-align:middle;
+    height:auto;
+    padding:1%;
+    background:#ebebec;
+}
+.account-group li:hover{
+    background-color:#acce39;
+}

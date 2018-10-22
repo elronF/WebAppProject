@@ -6,8 +6,33 @@
 	</head>
 	<body>
 		<div class="container">
-			{% block content %}
-			{% endblock %}
+			<div class="row banner-accounts">
+				<div class="col-md-12">
+					<div class="header">
+					<h1>Account Summary</h1>
+					</div>
+				</div>
+			</div>
+			<div class="row"> <!--ROW-->
+				<div class="col-md-4"> <!--COLUMN FOR ACCOUNTS-->
+					<div class="content-area" align="center"> <!--FOR STYLING PURPOSES-->
+						<h3>Account List</h3>
+						<ul class="account-group">
+							{% for account in accounts %}
+							<li class="account-item d-flex justify-content-between align-items-center">
+								<a href = "{{url_for('showOneAccount', account_id = account.id)}}">{{ account.accountType }}</a>
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-8"> <!--COLUMN FOR CONTENT-->
+					<div class="content-area" align="center">
+					{% block content %}
+					{% endblock %}
+					</div>
+				</div>	
+			</div>
 		</div>
 	</body>
 </html>
