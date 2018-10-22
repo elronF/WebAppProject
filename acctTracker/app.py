@@ -17,15 +17,17 @@ session = DBSession()
 @app.route('/accounts/')
 def showAccounts():
     accounts = session.query(Account).order_by(asc(Account.accountType))
-    return render_template('main.html', accounts=accounts)
+    stocks = session.query(Stock).order_by(asc(Stock.account_id))
+    return render_template('stocks.html', accounts=accounts, stocks=stocks)
 
 
 # Show the contents of one account
 @app.route('/accounts/<int:account_id>/')
 def showOneAccount(account_id):
+    accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     stocks = session.query(Stock).filter_by(account_id=account_id).all()
-    return("Hey there fella, something worked!")
+    return render_template('account.html', accounts=accounts, account=account, stocks=stocks)
 
 
 # Show the details of one stock
