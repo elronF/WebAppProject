@@ -17,7 +17,7 @@ session = DBSession()
 @app.route('/accounts/')
 def showAccounts():
     accounts = session.query(Account).order_by(asc(Account.accountType))
-    return render_template('accounts.html', accounts=accounts)
+    return render_template('main.html', accounts=accounts)
 
 
 # Show the contents of one account
