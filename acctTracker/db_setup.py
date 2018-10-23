@@ -10,10 +10,17 @@ Base = declarative_base()
 
 
 class Owner(Base):
-	__tablename__ = 'owner'
+    __tablename__ = 'owner'
 
-	id = Column(Integer, primary_key = True)
-	name = Column(String(25), nullable = False)
+    id = Column(Integer, primary_key = True)
+    name = Column(String(25), nullable = False)
+
+    @property
+    def serialize(self):
+        return {
+            'id':         self.id,
+            'name':       self.name,
+        }
 
 
 class Account(Base):
@@ -23,7 +30,15 @@ class Account(Base):
     owner_name = Column(String(25), ForeignKey('owner.name'), nullable = False)
     accountType = Column(String(10), nullable = False)
     institution = Column(String(25), nullable = False)
-
+    
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'owner_name':     self.owner_name,
+            'accountType':    self.accountType,
+            'institution':    self.institution,
+        }
 
 class Stock(Base):
     __tablename__ = 'stock'
@@ -36,6 +51,17 @@ class Stock(Base):
     description = Column(String(500))
     account_id = Column(Integer, ForeignKey('account.id'))
     account = relationship(Account)
+
+    @property
+    def serialize(self):
+        return {
+            'id':            self.id,
+            'ticker':        self.ticker,
+            'exchange':      self.exchange,
+            'companyName':   self.companyName,
+            'industry':      self.industry,
+            'description':   self.description,
+        }
 
 # For later functionality
 # class Transaction(Base):

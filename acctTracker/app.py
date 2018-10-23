@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from db_setup import Base, Owner, Account, Stock
+import json
 
 app = Flask(__name__)
 
@@ -36,6 +37,21 @@ def showStockDetails(account_id, stock_ticker):
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
     account = session.query(Account).filter_by(id=account_id).one()
     return("Hey there fella, something worked!")
+
+
+# JSON endpoints 
+# Show all accounts (JSON)
+@app.route('/accounts/JSON/')
+def accountsJSON():
+    accounts = session.query(Account).all()
+    return jsonify(accounts=[a.serialize for a in accounts])
+
+
+# Show stock information
+@app.route('/accounts/<int:account_id>/<string:stock_ticker>/JSON/')
+def stockJSON(account_id, stock_ticker):
+    stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    return jsonify(stock=stock.serialize)
 
 
 if __name__ == '__main__':
