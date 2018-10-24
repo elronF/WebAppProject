@@ -12,7 +12,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
+# Routes that do not require login
 # Show all accounts
 @app.route('/')
 @app.route('/accounts/')
@@ -37,6 +37,27 @@ def showStockDetails(account_id, stock_ticker):
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
     account = session.query(Account).filter_by(id=account_id).one()
     return("Hey there fella, something worked!")
+
+
+# Routes that require login
+# Create item
+@app.route('/accounts/<int:account_id>/stock/create/', methods=['GET', 'POST'])
+def newStock(account_id):
+    accounts = session.query(Account).order_by(asc(Account.accountType))
+    account = session.query(Account).filter_by(id=account_id).one()
+    if request.method == 'POST':
+        newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], exchange=request.form['exchange'], industry=request.form['industry'], description=request.form['description'], account_id=account_id)
+        session.add(newStock)
+        session.commit()
+        return redirect(url_for('showOneAccount', account_id=account_id))
+    else:
+        return render_template('createstock.html', accounts=accounts, account_id=account_id)
+
+
+# Edit item
+
+
+# Delete item
 
 
 # JSON endpoints 

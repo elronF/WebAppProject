@@ -64,6 +64,20 @@ p {color:#000000;}
 	text-align:left;
 }
 
+.form-area {
+	padding: 10px 10px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid #e3e3e3
+}
+
+.form-area input {
+	margin-bottom:5px;
+}
+
+.form-area button {
+	margin-top:5px;
+}
+
 .header-right {
 	float:right;
 }

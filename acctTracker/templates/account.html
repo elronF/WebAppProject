@@ -2,18 +2,28 @@
 {% block content %}
 
 <h3>Stock List</h3>
+
 {% for stock in stocks %}
 <article class="stock content-section">
-	<div class="stock-body">
-		<div class="article-metadata">
-			<a class="mr-3">
-				<span style="float:left" href="#"><b>{{ stock.companyName }} ({{ stock.ticker }}: {{ stock.exchange }})</b></span>
-				<span style="float:right"><small>{{ stock.account.accountType }}</small></span>
-			</a>
-		</div>
-		<p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
-	</div>
+    <div class="stock-body">
+        <div class="article-metadata">
+            <a class="mr-3">
+                <span style="float:left" href="#"><b>{{ stock.companyName }} ({{ stock.ticker }}: {{ stock.exchange }})</b></span>
+                <span style="float:right"><small>{{ stock.account.accountType }}</small></span>
+            </a>
+        </div>
+        <p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
+    </div>
 </article>
+
 {% endfor %}
+
+<div class="db-buttons">
+<a href="{{url_for('newStock', account_id = account.id )}}">
+    <button class="btn btn-default" id="new-stock">
+        <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Add Stock
+    </button>
+</a>
+</div>
 
 {% endblock %}
