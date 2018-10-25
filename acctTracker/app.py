@@ -54,10 +54,43 @@ def newStock(account_id):
         return render_template('createstock.html', accounts=accounts, account_id=account_id)
 
 
-# Edit item
+# Edit stock
+@app.route('/accounts/<int:account_id>/<string:stock_ticker>/update/', methods=['GET', 'POST'])
+def editStock(account_id, stock_ticker):
+    accounts = session.query(Account).order_by(asc(Account.accountType))
+    account = session.query(Account).filter_by(id=account_id).one()
+    updatedStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    if request.method == 'POST':
+        if request.form['companyName']:
+            updatedStock.companyName = request.form['companyName']
+        if request.form['ticker']:
+            updatedStock.ticker = request.form['ticker']
+        if request.form['exchange']:
+            updatedStock.exchange = request.form['exchange']
+        if request.form['industry']:
+            updatedStock.industry = request.form['industry']
+        if request.form['description']:
+            updatedStock.description = request.form['description']
+        session.add(updatedStock)
+        session.commit()
+        # add flashing here
+        return redirect(url_for('showOneAccount', account_id=account_id))
+    else:
+    	return render_template('editstock.html', accounts=accounts, account=account, stock=updatedStock)
 
 
-# Delete item
+# Delete stock
+@app.route('/accounts/<int:account_id>/<string:stock_ticker>/delete/', methods=['GET', 'POST'])
+def deleteStock(account_id, stock_ticker):
+    account = session.query(Account).filter_by(id=account_id).one()
+    deleteStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    if request.method == 'POST':
+    	session.delete(deleteStock)
+    	session.commit()
+    	# add flashing here
+    	return redirect(url_for('showOneAccount', account_id=account_id))
+    else:
+    	return render_template('')
 
 
 # JSON endpoints 
@@ -68,7 +101,7 @@ def accountsJSON():
     return jsonify(accounts=[a.serialize for a in accounts])
 
 
-# Show stock information
+# Show stock information (JSON)
 @app.route('/accounts/<int:account_id>/<string:stock_ticker>/JSON/')
 def stockJSON(account_id, stock_ticker):
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()

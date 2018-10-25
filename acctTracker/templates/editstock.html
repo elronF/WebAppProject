@@ -1,0 +1,31 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Edit Stock</h3>
+
+<article class="stock content-section">
+	<div class="stock-body">
+		<form action="#" method = "post">
+			<div class="form-area">
+				<input type ="text" maxlength="50" class="form-control" name="companyName" placeholder="{{stock.companyName}}">
+
+				<input type ="text" maxlength="8" class="form-control" name="ticker" placeholder="{{stock.ticker}}">
+
+				<input type ="text" maxlength="8" class="form-control" name="exchange" placeholder="{{stock.exchange}}">
+			
+				<input type ="text" maxlength="30" class="form-control" name="industry" placeholder="{{stock.industry}}">
+
+				<textarea class="form-control" maxlength="500" rows="4" name="description" placeholder="{{stock.description}}"></textarea>
+
+				<button type="submit" class="btn btn-default" id="submit" type="submit">
+				<span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Confirm Edits</button>
+                <a href = '{{url_for('showAccounts')}}'>
+                    <button class="btn btn-default delete">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Cancel</button>
+                </a>
+			</div>
+		</form>
+	</div>
+</article>
+
+{% endblock %}
