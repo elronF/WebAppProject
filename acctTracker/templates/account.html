@@ -13,6 +13,18 @@
             </a>
         </div>
         <p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
+        <div class="db-buttons">
+            <a href="{{url_for('editStock', account_id = account.id, stock_ticker = stock.ticker )}}">
+    		    <button class="btn btn-default" id="new-stock">
+        		    <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Update
+    		    </button>
+		    </a>
+            <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
+                <button class="btn btn-default" id="new-stock">
+                    <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Delete
+                </button>
+            </a>
+        </div>
     </div>
 </article>
 
