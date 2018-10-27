@@ -48,6 +48,7 @@ def newStock(account_id):
     if request.method == 'POST':
         newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], exchange=request.form['exchange'], industry=request.form['industry'], description=request.form['description'], account_id=account_id)
         session.add(newStock)
+        flash('{} has been added to your {} account'.format(newStock.companyName, account.accountType))
         session.commit()
         return redirect(url_for('showOneAccount', account_id=account_id))
     else:
@@ -72,11 +73,12 @@ def editStock(account_id, stock_ticker):
         if request.form['description']:
             updatedStock.description = request.form['description']
         session.add(updatedStock)
+        flash('{} has been updated'.format(updatedStock.companyName))
         session.commit()
         # add flashing here
         return redirect(url_for('showOneAccount', account_id=account_id))
     else:
-    	return render_template('editstock.html', accounts=accounts, account=account, stock=updatedStock)
+        return render_template('editstock.html', accounts=accounts, account=account, stock=updatedStock)
 
 
 # Delete stock
@@ -84,14 +86,12 @@ def editStock(account_id, stock_ticker):
 def deleteStock(account_id, stock_ticker):
     account = session.query(Account).filter_by(id=account_id).one()
     deleteStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
-    if request.method == 'POST':
-    	session.delete(deleteStock)
-    	session.commit()
-    	# add flashing here
-    	return redirect(url_for('showOneAccount', account_id=account_id))
-    else:
-    	return render_template('')
-
+    session.delete(deleteStock)
+    flash('{} has been deleted'.format(deleteStock.companyName))
+    session.commit()
+    # add flashing here
+    return redirect(url_for('showOneAccount', account_id=account_id))
+    
 
 # JSON endpoints 
 # Show all accounts (JSON)
@@ -109,5 +109,6 @@ def stockJSON(account_id, stock_ticker):
 
 
 if __name__ == '__main__':
+    app.secret_key = 'b_5#y2L"F4Q8z\n\xec]/'
     app.debug = True # server reloads each time there's a code change
     app.run(host = '0.0.0.0', port = 5000)

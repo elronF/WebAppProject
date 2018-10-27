@@ -64,6 +64,20 @@ p {color:#000000;}
 	text-align:left;
 }
 
+.flash {
+	background-color: #d5d5d5;
+	width:100%;
+	text-decoration: none;
+}
+
+.flash li {
+	display: table-cell;
+    vertical-align:middle;
+    height:auto;
+    padding:1%;
+    background:#d5d5d5;
+}
+
 .form-area {
 	padding: 10px 10px;
 	margin-bottom: 4px;
@@ -84,6 +98,7 @@ p {color:#000000;}
 
 .stock-body {
 	border: 1px solid #dddddd;
-	padding: 2px 2px;
+	padding: 10px;
 	margin-bottom: 5px;
+    overflow:hidden;
 }

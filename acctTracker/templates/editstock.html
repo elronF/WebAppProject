@@ -3,6 +3,21 @@
 
 <h3>Edit Stock</h3>
 
+<div class='flash'>
+{% with messages = get_flashed_messages() %} 
+    {% if messages %} 
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button> 
+        {{message}}
+      </div>
+      {% endfor %} 
+    {% endif %} 
+  {% endwith %}
+</div>
+
 <article class="stock content-section">
 	<div class="stock-body">
 		<form action="#" method = "post">

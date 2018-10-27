@@ -3,6 +3,21 @@
 
 <h3>Stock List</h3>
 
+<div class='flash'>
+{% with messages = get_flashed_messages() %} 
+    {% if messages %} 
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button> 
+        {{message}}
+      </div>
+      {% endfor %} 
+    {% endif %} 
+  {% endwith %}
+</div>
+
 {% for stock in stocks %}
 <article class="stock content-section">
     <div class="stock-body">
@@ -14,16 +29,12 @@
         </div>
         <p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
         <div class="db-buttons">
-            <a href="{{url_for('editStock', account_id = account.id, stock_ticker = stock.ticker )}}">
-    		    <button class="btn btn-default" id="new-stock">
-        		    <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Update
-    		    </button>
-		    </a>
-            <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
-                <button class="btn btn-default" id="new-stock">
-                    <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Delete
-                </button>
-            </a>
+			<span style="float: right">
+	            <a href="{{url_for('editStock', account_id = account.id, stock_ticker = stock.ticker )}}">
+            	<button type="button" class="btn btn-primary btn-sm">Update</button></a>
+	            <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
+                <button type="button" class="btn btn-danger btn-sm">Delete</button></a>
+            </span>
         </div>
     </div>
 </article>
@@ -31,11 +42,11 @@
 {% endfor %}
 
 <div class="db-buttons">
-<a href="{{url_for('newStock', account_id = account.id )}}">
-    <button class="btn btn-default" id="new-stock">
+	<a href="{{url_for('newStock', account_id = account.id )}}">
+    <button class="btn btn-default btn-sm" id="new-stock">
         <span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Add Stock
     </button>
-</a>
+	</a>
 </div>
 
 {% endblock %}
