@@ -1,18 +1,36 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from db_setup import Base, Owner, Account, Stock
+from db_setup import Base, Owner, Account, Stock, User
+
+from flask import session as login_session
+import random, string # allows us to create pseudo-random string to identify a session
+
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
 import json
+
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///tracker.db')
+engine = create_engine('sqlite:///tracker_v2.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-# Routes that do not require login
+
+# OAUTH LOGIC
+# Create state token. Store in session.
+@app.route('/login/')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    login_session['state'] = state
+    return render_template('login.html', STATE=state)
+
+
+# ROUTES-NO LOGIN
 # Show all accounts
 @app.route('/')
 @app.route('/accounts/')
@@ -39,14 +57,16 @@ def showStockDetails(account_id, stock_ticker):
     return("Hey there fella, something worked!")
 
 
-# Routes that require login
+# ROUTES-LOGIN
 # Create item
 @app.route('/accounts/<int:account_id>/stock/create/', methods=['GET', 'POST'])
 def newStock(account_id):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     if request.method == 'POST':
-        newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], exchange=request.form['exchange'], industry=request.form['industry'], description=request.form['description'], account_id=account_id)
+        newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], 
+                         exchange=request.form['exchange'], industry=request.form['industry'], 
+                         description=request.form['description'], account_id=account_id, user_id=login_session['user_id'])
         session.add(newStock)
         flash('{} has been added to your {} account'.format(newStock.companyName, account.accountType))
         session.commit()
@@ -93,7 +113,7 @@ def deleteStock(account_id, stock_ticker):
     return redirect(url_for('showOneAccount', account_id=account_id))
     
 
-# JSON endpoints 
+# JSON ENDPOINTS 
 # Show all accounts (JSON)
 @app.route('/accounts/JSON/')
 def accountsJSON():
@@ -106,6 +126,31 @@ def accountsJSON():
 def stockJSON(account_id, stock_ticker):
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
     return jsonify(stock=stock.serialize)
+
+
+# USER FUNCTIONS
+# Returns a user ID if there's a match based on the email passed into it.
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email = email).one()
+        return user.id
+    except:
+       return None
+
+
+# If userid passed in, returns user object associated with user number
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id = user_id).one()
+    return user
+
+
+# creates a new user in the DB based on name and email, returns an ID.
+def createUser(login_session):
+    newUser = User(name = login_session['username'], email = login_session['email'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email = login_session['email']).one()
+    return user.id
 
 
 if __name__ == '__main__':

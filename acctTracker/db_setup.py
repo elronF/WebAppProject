@@ -23,6 +23,22 @@ class Owner(Base):
         }
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(String(30))
+    email = Column(String(100))
+
+    @property
+    def serialize(self):
+        return {
+            'id':          self.id,
+            'name':        self.name,
+            'email':       self.email,
+        }
+    
+
 class Account(Base):
     __tablename__ = 'account'
     
@@ -40,6 +56,7 @@ class Account(Base):
             'institution':    self.institution,
         }
 
+
 class Stock(Base):
     __tablename__ = 'stock'
 
@@ -51,6 +68,8 @@ class Stock(Base):
     description = Column(String(500))
     account_id = Column(Integer, ForeignKey('account.id'))
     account = relationship(Account)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -63,6 +82,7 @@ class Stock(Base):
             'description':   self.description,
         }
 
+
 # For later functionality
 # class Transaction(Base):
 # 	id = Column(Integer, primary_key = True)
@@ -73,6 +93,6 @@ class Stock(Base):
 # 	account = relationship(Account) # the transaction occurs in one account
 # 	stock = relationship(Stock) # the transaction occurs with one stock
 
-engine = create_engine('sqlite:///tracker.db')
+engine = create_engine('sqlite:///tracker_v2.db')
 
 Base.metadata.create_all(engine)
