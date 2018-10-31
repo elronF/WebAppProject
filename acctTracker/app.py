@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from db_setup import Base, Owner, Account, Stock, User
 
 from flask import session as login_session
-import random, string # allows us to create pseudo-random string to identify a session
+import random, string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -110,7 +110,7 @@ def gconnect():
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
-    flash("you are now logged in as {}".format(login_session['username']))
+    flash("You are now logged in as {}".format(login_session['username']))
     print("done!")
     return output
 
@@ -121,11 +121,10 @@ def gdisconnect():
     # Only disconnect a connected user.
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(
-            json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     if result['status'] == '200':
@@ -174,13 +173,17 @@ def showAccounts():
     return render_template('stocks.html', accounts=accounts, stocks=stocks)
 
 
+# ROUTES-LOGIN
 # Show the contents of one account
 @app.route('/accounts/<int:account_id>/')
 def showOneAccount(account_id):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     stocks = session.query(Stock).filter_by(account_id=account_id).all()
-    return render_template('account.html', accounts=accounts, account=account, stocks=stocks)
+    if 'username' not in login_session:
+        return redirect('/login/')
+    else:
+        return render_template('account.html', accounts=accounts, account=account, stocks=stocks)
 
 
 # Show the details of one stock
@@ -191,12 +194,13 @@ def showStockDetails(account_id, stock_ticker):
     return("Hey there fella, something worked!")
 
 
-# ROUTES-LOGIN
 # Create item
 @app.route('/accounts/<int:account_id>/stock/create/', methods=['GET', 'POST'])
 def newStock(account_id):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
+    if 'username' not in login_session:
+        return redirect('/login/')
     if request.method == 'POST':
         newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], 
                          exchange=request.form['exchange'], industry=request.form['industry'], 
@@ -215,6 +219,8 @@ def editStock(account_id, stock_ticker):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     updatedStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    if 'username' not in login_session:
+        return redirect('/login/')
     if request.method == 'POST':
         if request.form['companyName']:
             updatedStock.companyName = request.form['companyName']
@@ -240,6 +246,8 @@ def editStock(account_id, stock_ticker):
 def deleteStock(account_id, stock_ticker):
     account = session.query(Account).filter_by(id=account_id).one()
     deleteStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
+    if 'username' not in login_session:
+        return redirect('/login/')
     session.delete(deleteStock)
     flash('{} has been deleted'.format(deleteStock.companyName))
     session.commit()
