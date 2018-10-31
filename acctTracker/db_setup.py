@@ -1,6 +1,6 @@
 # Configuration Code
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship # used to create foreign key relationships
 from sqlalchemy import create_engine
@@ -70,6 +70,10 @@ class Stock(Base):
     account = relationship(Account)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+    
+    __table_args__ = (
+        UniqueConstraint('ticker'),
+    )
 
     @property
     def serialize(self):

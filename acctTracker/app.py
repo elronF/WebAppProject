@@ -58,8 +58,7 @@ def gconnect():
     
     ''' Check validity of access token'''
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
-    #url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}').format(access_token)
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}').format(access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url,'GET')[1].decode('utf-8'))
     print(result)
