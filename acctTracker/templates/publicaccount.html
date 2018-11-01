@@ -1,0 +1,36 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h3>Stock List</h3>
+
+<div class='flash'>
+{% with messages = get_flashed_messages() %} 
+    {% if messages %} 
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button> 
+        {{message}}
+      </div>
+      {% endfor %} 
+    {% endif %} 
+  {% endwith %}
+</div>
+
+{% for stock in stocks %}
+<article class="stock content-section">
+    <div class="stock-body">
+        <div class="article-metadata">
+            <a class="mr-3">
+                <span style="float:left" href="#"><b>{{ stock.companyName }} ({{ stock.ticker }}: {{ stock.exchange }})</b></span>
+                <span style="float:right"><small>{{ stock.account.accountType }}</small></span>
+            </a>
+        </div>
+        <p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
+    </div>
+</article>
+
+{% endfor %}
+
+{% endblock %}
