@@ -1,8 +1,7 @@
-# Configuration Code
 import sys
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship # used to create foreign key relationships
+from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
 
@@ -12,8 +11,8 @@ Base = declarative_base()
 class Owner(Base):
     __tablename__ = 'owner'
 
-    id = Column(Integer, primary_key = True)
-    name = Column(String(25), nullable = False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25), nullable=False)
 
     @property
     def serialize(self):
@@ -26,7 +25,7 @@ class Owner(Base):
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key = True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(30))
     email = Column(String(100))
 
@@ -36,16 +35,16 @@ class User(Base):
             'id':          self.id,
             'email':       self.email,
         }
-    
+
 
 class Account(Base):
     __tablename__ = 'account'
-    
-    id = Column(Integer, primary_key = True)
-    owner_name = Column(String(25), ForeignKey('owner.name'), nullable = False)
-    accountType = Column(String(10), nullable = False)
-    institution = Column(String(25), nullable = False)
-    
+
+    id = Column(Integer, primary_key=True)
+    owner_name = Column(String(25), ForeignKey('owner.name'), nullable=False)
+    accountType = Column(String(10), nullable=False)
+    institution = Column(String(25), nullable=False)
+
     @property
     def serialize(self):
         return {
@@ -59,9 +58,9 @@ class Account(Base):
 class Stock(Base):
     __tablename__ = 'stock'
 
-    id = Column(Integer, primary_key = True)
-    ticker = Column(String(8), nullable = False)
-    exchange = Column(String(8), nullable = False)
+    id = Column(Integer, primary_key=True)
+    ticker = Column(String(8), nullable=False)
+    exchange = Column(String(8), nullable=False)
     companyName = Column(String(50))
     industry = Column(String(30))
     description = Column(String(500))
@@ -69,7 +68,7 @@ class Stock(Base):
     account = relationship(Account)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    
+
     __table_args__ = (
         UniqueConstraint('ticker'),
     )
