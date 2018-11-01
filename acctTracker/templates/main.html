@@ -14,11 +14,18 @@
 						<a href="{{url_for('showAccounts')}}">
 						<h1>Account Summary</h1>
 						</a>
+                        {% if 'username' in session %}
+						<p><small>Logged in as {{session.email}}</small></p>
+						{% endif %}
 					</div>
 				</div>
 				<div class="col-md-6 login-header">
 					<div class="header-right">
-						<h1>Login Placeholder</h1>
+						{% if 'email' not in session %}
+							<a href="{{url_for('showLogin')}}">Click Here to Login </a>
+						{% else %}
+							<a href="{{url_for('gdisconnect')}}">Logout </a>
+						{% endif %}
 					</div>
 				</div>
 			</div>

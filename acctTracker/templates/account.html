@@ -29,11 +29,11 @@
         </div>
         <p class="article-content" style="text-align:left"><small>{{ stock.description }}</small></p>
         <div class="db-buttons">
-			<span style="float: right">
+			      <span style="float: right">
 	            <a href="{{url_for('editStock', account_id = account.id, stock_ticker = stock.ticker )}}">
             	<button type="button" class="btn btn-primary btn-sm">Update</button></a>
 	            <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
-                <button type="button" class="btn btn-danger btn-sm">Delete</button></a>
+              <button type="button" class="btn btn-danger btn-sm">Delete</button></a>
             </span>
         </div>
     </div>

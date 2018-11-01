@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
@@ -16,10 +17,11 @@ from flask import make_response
 import requests
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+APPLICATION_NAME = "Account Tracker App"
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///tracker_v2.db')
+engine = create_engine('sqlite:///tracker_v2.db?check_same_thread=False')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -29,7 +31,6 @@ session = DBSession()
 # OAUTH LOGIC
 '''Create state token. Store in session.'''
 @app.route('/login/')
-#@app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     login_session['state'] = state
@@ -100,18 +101,23 @@ def gconnect():
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
     data = json.loads(answer.text)
+    print(data)
 
-    login_session['username'] = data["name"]
-    #login_session['picture'] = data["picture"]
     login_session['email'] = data["email"]
 
     output = ''
     output += '<h1>Welcome, '
-    output += login_session['username']
+    output += login_session['email']
     output += '!</h1>'
-    flash("You are now logged in as {}".format(login_session['username']))
+    flash("You are now logged in as {}".format(login_session['email']))
     print("done!")
     return output
+    
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
 # To disconnect from google login
@@ -123,19 +129,27 @@ def gdisconnect():
         response = make_response(json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+    print(result)
     if result['status'] == '200':
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['email']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Logged out successfully")
+        return redirect(url_for('showAccounts'))
     else:
-        response = make_response(json.dumps('Failed to revoke token for \
-        given user.', 400))
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['email']
+        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
-        return response
-
+        print(response)
+        flash("Logout failed")
+        return redirect(url_for('showAccounts'))
 
 # USER FUNCTIONS
 # Returns a user ID if there's a match based on the email passed into it.
@@ -153,9 +167,9 @@ def getUserInfo(user_id):
     return user
 
 
-# creates a new user in the DB based on name and email, returns an ID.
+# Creates a new user in the DB based on name and email, returns an ID.
 def createUser(login_session):
-    newUser = User(name = login_session['username'], email = login_session['email'])
+    newUser = User(email = login_session['email'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -176,13 +190,13 @@ def showAccounts():
 # Show the contents of one account
 @app.route('/accounts/<int:account_id>/')
 def showOneAccount(account_id):
-    accounts = session.query(Account).order_by(asc(Account.accountType))
-    account = session.query(Account).filter_by(id=account_id).one()
-    stocks = session.query(Stock).filter_by(account_id=account_id).all()
-    if 'username' not in login_session:
-        return redirect('/login/')
+    accountsOne= session.query(Account).order_by(asc(Account.accountType))
+    accountOne = session.query(Account).filter_by(id=account_id).one()
+    stocksOne = session.query(Stock).filter_by(account_id=account_id).all()
+    if 'email' not in login_session:
+        return render_template('publicaccount.html', accounts=accountsOne, account=accountOne, stocks=stocksOne)
     else:
-        return render_template('account.html', accounts=accounts, account=account, stocks=stocks)
+        return render_template('account.html', accounts=accountsOne, account=accountOne, stocks=stocksOne)
 
 
 # Show the details of one stock
@@ -198,7 +212,7 @@ def showStockDetails(account_id, stock_ticker):
 def newStock(account_id):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
-    if 'username' not in login_session:
+    if 'email' not in login_session:
         return redirect('/login/')
     if request.method == 'POST':
         newStock = Stock(companyName=request.form['companyName'], ticker=request.form['ticker'], 
@@ -218,7 +232,7 @@ def editStock(account_id, stock_ticker):
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     updatedStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
-    if 'username' not in login_session:
+    if 'email' not in login_session:
         return redirect('/login/')
     if request.method == 'POST':
         if request.form['companyName']:
@@ -234,7 +248,6 @@ def editStock(account_id, stock_ticker):
         session.add(updatedStock)
         flash('{} has been updated'.format(updatedStock.companyName))
         session.commit()
-        # add flashing here
         return redirect(url_for('showOneAccount', account_id=account_id))
     else:
         return render_template('editstock.html', accounts=accounts, account=account, stock=updatedStock)
@@ -245,12 +258,11 @@ def editStock(account_id, stock_ticker):
 def deleteStock(account_id, stock_ticker):
     account = session.query(Account).filter_by(id=account_id).one()
     deleteStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
-    if 'username' not in login_session:
+    if 'email' not in login_session:
         return redirect('/login/')
     session.delete(deleteStock)
     flash('{} has been deleted'.format(deleteStock.companyName))
     session.commit()
-    # add flashing here
     return redirect(url_for('showOneAccount', account_id=account_id))
     
 
