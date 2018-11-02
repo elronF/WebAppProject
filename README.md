@@ -1,6 +1,6 @@
 # Investment Tracker Project
 
-This project is an investment tracker. It utilizes Python, Flask and SQLAlchemy to allow a user to create, update, edit and delete a portfolio of investments spread across a set number of accounts.
+This project is an investment tracker web app. It utilizes Python, Flask and SQLAlchemy to allow a user to create, update, edit and delete a portfolio of investments spread across a set number of accounts.
 
 ## SETUP
 
