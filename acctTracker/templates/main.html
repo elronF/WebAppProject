@@ -14,7 +14,7 @@
 						<a href="{{url_for('showAccounts')}}">
 						<h1>Account Summary</h1>
 						</a>
-                        {% if 'username' in session %}
+                        {% if 'email' in session %}
 						<p><small>Logged in as {{session.email}}</small></p>
 						{% endif %}
 					</div>
