@@ -78,6 +78,10 @@ p {color:#000000;}
     background:#d5d5d5;
 }
 
+.flash-section {
+	padding:1%;
+}
+
 .form-area {
 	padding: 10px 10px;
 	margin-bottom: 4px;
