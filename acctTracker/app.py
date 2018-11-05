@@ -11,11 +11,13 @@ import string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
+from functools import wraps
 import httplib2
 import socks
 import json
 from flask import make_response
 import requests
+from functools import wraps
 
 CLIENT_ID = json.loads(
                 open('client_secrets.json', 'r').read())['web']['client_id']
@@ -113,6 +115,11 @@ def gconnect():
 
     login_session['email'] = data["email"]
 
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['email']
@@ -120,11 +127,6 @@ def gconnect():
     flash("You are now logged in as {}".format(login_session['email']))
     print("done!")
     return output
-
-    user_id = getUserID(login_session['email'])
-    if not user_id:
-        user_id = createUser(login_session)
-    login_session['user_id'] = user_id
 
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
@@ -187,6 +189,18 @@ def createUser(login_session):
     return user.id
 
 
+# Login decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'email' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash("You must be logged in to access this page")
+            return redirect('/login/')
+    return decorated_function
+
+
 # ROUTES-NO LOGIN
 @app.route('/')
 @app.route('/accounts/')
@@ -199,6 +213,7 @@ def showAccounts():
 
 # ROUTES-LOGIN
 @app.route('/accounts/<int:account_id>/')
+@login_required
 def showOneAccount(account_id):
     '''Show the contents of one account'''
     accountsOne = session.query(Account).order_by(asc(Account.accountType))
