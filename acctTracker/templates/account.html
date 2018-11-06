@@ -32,8 +32,8 @@
 			      <span style="float: right">
 	            <a href="{{url_for('editStock', account_id = account.id, stock_ticker = stock.ticker )}}">
             	<button type="button" class="btn btn-primary btn-sm">Update</button></a>
-	            <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
-              <button type="button" class="btn btn-danger btn-sm">Delete</button></a>
+              <a href="{{url_for('deleteStock', account_id = account.id, stock_ticker = stock.ticker )}}">
+              <button type="submit" class="btn btn-danger btn-sm" id="submit" type="submit">Delete</button></a>
             </span>
         </div>
     </div>

@@ -196,7 +196,7 @@ def login_required(f):
         if 'email' in login_session:
             return f(*args, **kwargs)
         else:
-            flash("You must be logged in to access this page")
+            flash("You've tried to access a page that requires login. Please use sign in at top right.")
             return redirect('/login/')
     return decorated_function
 
@@ -232,6 +232,7 @@ def showOneAccount(account_id):
 
 
 @app.route('/accounts/<int:account_id>/<string:stock_ticker>/')
+@login_required
 def showStockDetails(account_id, stock_ticker):
     '''Show the details of one stock'''
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
@@ -240,6 +241,7 @@ def showStockDetails(account_id, stock_ticker):
 
 
 @app.route('/accounts/<int:account_id>/stock/create/', methods=['GET', 'POST'])
+@login_required
 def newStock(account_id):
     '''Create new stock'''
     accounts = session.query(Account).order_by(asc(Account.accountType))
@@ -267,13 +269,15 @@ def newStock(account_id):
 
 @app.route('/accounts/<int:account_id>/<string:stock_ticker>/update/',
            methods=['GET', 'POST'])
+@login_required
 def editStock(account_id, stock_ticker):
     '''Edit stock details'''
     accounts = session.query(Account).order_by(asc(Account.accountType))
     account = session.query(Account).filter_by(id=account_id).one()
     updatedStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
-    if 'email' not in login_session:
-        return redirect('/login/')
+    if updatedStock.user_id != login_session['user_id']:
+        flash("Only the creator of this stock can edit it")
+        return redirect(url_for('showOneAccount', account_id=account_id))
     if request.method == 'POST':
         if request.form['companyName']:
             updatedStock.companyName = request.form['companyName']
@@ -296,18 +300,20 @@ def editStock(account_id, stock_ticker):
                                stock=updatedStock)
 
 
-@app.route('/accounts/<int:account_id>/<string:stock_ticker>/delete/',
-           methods=['GET', 'POST'])
+@app.route('/accounts/<int:account_id>/<string:stock_ticker>/delete/')
+@login_required
 def deleteStock(account_id, stock_ticker):
     '''Delete a stock'''
     account = session.query(Account).filter_by(id=account_id).one()
     deleteStock = session.query(Stock).filter_by(ticker=stock_ticker).one()
-    if 'email' not in login_session:
-        return redirect('/login/')
-    session.delete(deleteStock)
-    flash('{} has been deleted'.format(deleteStock.companyName))
-    session.commit()
-    return redirect(url_for('showOneAccount', account_id=account_id))
+    if deleteStock.user_id != login_session['user_id']:
+        flash("Only the creator of this stock can delete it")
+        return redirect(url_for('showOneAccount', account_id=account_id))
+    else:
+        session.delete(deleteStock)
+        flash('{} has been deleted'.format(deleteStock.companyName))
+        session.commit()
+        return redirect(url_for('showOneAccount', account_id=account_id))
 
 
 # JSON ENDPOINTS
@@ -318,8 +324,8 @@ def accountsJSON():
     return jsonify(accounts=[a.serialize for a in accounts])
 
 
-@app.route('/accounts/<int:account_id>/<string:stock_ticker>/JSON/')
-def stockJSON(account_id, stock_ticker):
+@app.route('/accounts/<string:stock_ticker>/JSON/')
+def stockJSON(stock_ticker):
     '''Show JSON for stocks'''
     stock = session.query(Stock).filter_by(ticker=stock_ticker).one()
     return jsonify(stock=stock.serialize)
