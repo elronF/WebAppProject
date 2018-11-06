@@ -196,7 +196,8 @@ def login_required(f):
         if 'email' in login_session:
             return f(*args, **kwargs)
         else:
-            flash("You've tried to access a page that requires login. Please use sign in at top right.")
+            flash("You've tried to access a page that requires login. \
+                Please use sign in at top right.")
             return redirect('/login/')
     return decorated_function
 
