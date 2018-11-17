@@ -10,12 +10,13 @@ A **Linux VM** and **Python3** is required to run this app.
 
 Once Vagrant and Virtual Box are installed, pull the Vagrantfile from this project's repository and place it in a folder called "vagrant". From the terminal, navigate to your vagrant folder and run the command ```vagrant up```. An automated setup will run. Once complete, you can log-in to your VM using the command ```vagrant ssh```
 
-The major requirements needed to run this app include **Flask**, **SQLAlchemy** and **OAuth**. Commands for installing these packages through pip are below though they should be already in place via the vagrant setup.
+The requirements needed to run this app include **Flask**, **SQLAlchemy**, **OAuth** and **PySocks**. Commands for installing these packages through pip are below:
 
 ```bash
 pip3 install flask
 pip3 install SQLAlchemy
 pip3 install oauth2client
+pip3 install PySocks
 ```
 
 To access the full functionality of this Tracker app, a Gmail or Google+ account will be required in order to obtain authorization.
