@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import psycopg2
 
-from db_setup import Owner, Account, Stock, User, Base
+from db_setup import Owner, Account, Stock, UserCred, Base
 
-engine = create_engine('sqlite:///tracker_v2.db')
+#engine = create_engine('sqlite:///tracker_v2.db')
+engine = create_engine('postgresql://catalog:catpass@localhost/catalog')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -16,11 +18,11 @@ owner1 = Owner(name="Logan")
 session.add(owner1)
 session.commit()
 
-account1 = Account(accountType="RRSP", institution="RBC", owner_name=owner1.name)
-account2 = Account(accountType="TFSA", institution="Questrade", owner_name=owner1.name)
-account3 = Account(accountType="NonReg", institution="TD", owner_name=owner1.name)
-account4 = Account(accountType="Trust", institution="Questrade", owner_name=owner1.name)
-account5 = Account(accountType="RESP", institution="RBC", owner_name=owner1.name)
+account1 = Account(accountType="RRSP", institution="RBC")
+account2 = Account(accountType="TFSA", institution="Questrade")
+account3 = Account(accountType="NonReg", institution="TD")
+account4 = Account(accountType="Trust", institution="Questrade")
+account5 = Account(accountType="RESP", institution="RBC")
 
 session.add(account1)
 session.add(account2)
@@ -29,7 +31,9 @@ session.add(account4)
 session.add(account5)
 session.commit()
 
-user1 = User(name="Logan", email="lflearns@gmail.com")
+user1 = UserCred(email="lflearns@gmail.com")
+session.add(user1)
+session.commit()
 
 stock1 = Stock(ticker="CJ", exchange="TSX", companyName="Cardinal Energy", industry="Energy", description="Medium sized oil and gas company with assets in Canada", account=account1, user_id=1)
 stock2 = Stock(ticker="GOOG", exchange="NYSE", companyName="Alphabet Inc.", industry="Technology", description="An American multinational conglomerate headquartered in Mountain View, California.", account=account1, user_id=1)

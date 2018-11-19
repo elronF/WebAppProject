@@ -3,7 +3,9 @@ from flask import render_template, request, redirect, url_for, jsonify, flash
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from db_setup import Base, Owner, Account, Stock, User
+from db_setup import Base, Owner, Account, Stock, UserCred
+
+import psycopg2
 
 from flask import session as login_session
 import random
@@ -25,7 +27,8 @@ APPLICATION_NAME = "Account Tracker App"
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///tracker_v2.db?check_same_thread=False')
+#engine = create_engine('sqlite:///tracker_v2.db?check_same_thread=False')
+engine = create_engine('postgresql://catalog:catpass@localhost/catalog')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -116,6 +119,7 @@ def gconnect():
     login_session['email'] = data["email"]
 
     user_id = getUserID(login_session['email'])
+    print("DEBUG:" + login_session['email'])
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
@@ -163,30 +167,32 @@ def gdisconnect():
         flash("Logout failed")
         return redirect(url_for('showAccounts'))
 
-
+# NOTE: DEBUG THIS, NEED TO FIGURE OUT IF ITS RETURNING AN ID
 # USER FUNCTIONS
 def getUserID(email):
     '''Returns a user ID if email matches'''
+    print("On getuser ID:" + email)
     try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
+        usercred = session.query(UserCred).filter_by(email=email).one()
+        return usercred.id
     except Exception:
         return None
 
 
 def getUserInfo(user_id):
     '''If userid passed in, returns user object associated with user number'''
-    user = session.query(User).filter_by(id=user_id).one()
-    return user
+    usercred = session.query(UserCred).filter_by(id=user_id).one()
+    return usercred
 
 
 def createUser(login_session):
     '''Creates a new user in the DB based on name and email, returns an ID.'''
-    newUser = User(email=login_session['email'])
+    newUser = UserCred(email=login_session['email'])
     session.add(newUser)
     session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
+    print(login_session['email'])
+    usercred = session.query(UserCred).filter_by(email=login_session['email']).one()
+    return usercred.id
 
 
 # Login decorator

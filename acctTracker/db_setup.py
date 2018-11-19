@@ -3,6 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+import psycopg2
 
 
 Base = declarative_base()
@@ -12,7 +13,7 @@ class Owner(Base):
     __tablename__ = 'owner'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(25), nullable=False)
+    name = Column(String(25), unique=True, nullable=False)
 
     @property
     def serialize(self):
@@ -22,12 +23,11 @@ class Owner(Base):
         }
 
 
-class User(Base):
-    __tablename__ = 'user'
+class UserCred(Base):
+    __tablename__ = 'usercred'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(30))
-    email = Column(String(100))
+    email = Column(String(100), unique=True)
 
     @property
     def serialize(self):
@@ -41,7 +41,6 @@ class Account(Base):
     __tablename__ = 'account'
 
     id = Column(Integer, primary_key=True)
-    owner_name = Column(String(25), ForeignKey('owner.name'), nullable=False)
     accountType = Column(String(10), nullable=False)
     institution = Column(String(25), nullable=False)
 
@@ -49,7 +48,6 @@ class Account(Base):
     def serialize(self):
         return {
             'id': self.id,
-            'owner_name':     self.owner_name,
             'accountType':    self.accountType,
             'institution':    self.institution,
         }
@@ -66,8 +64,8 @@ class Stock(Base):
     description = Column(String(500))
     account_id = Column(Integer, ForeignKey('account.id'))
     account = relationship(Account)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user_id = Column(Integer, ForeignKey('usercred.id'))
+    usercred = relationship(UserCred)
 
     __table_args__ = (
         UniqueConstraint('ticker'),
@@ -95,6 +93,7 @@ class Stock(Base):
 # 	account = relationship(Account) # the transaction occurs in one account
 # 	stock = relationship(Stock) # the transaction occurs with one stock
 
-engine = create_engine('sqlite:///tracker_v2.db')
+#engine = create_engine('sqlite:///tracker_v2.db')
+engine = create_engine('postgresql://catalog:catpass@localhost/catalog')
 
 Base.metadata.create_all(engine)
